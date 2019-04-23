@@ -194,4 +194,5 @@ STATIC_URL = '/static/'
 # Set default auth user model
 AUTH_USER_MODEL = 'crux.User'
 
-django_heroku.settings(locals())
+if not DEBUG:
+    django_heroku.settings(locals())
