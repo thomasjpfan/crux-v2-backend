@@ -8,7 +8,8 @@
         "django"
     ],
     "addons": [
-        "heroku-postgresql"
+        "heroku-postgresql",
+        "newrelic:wayne"
     ],
     "environments": {
         "test": {
