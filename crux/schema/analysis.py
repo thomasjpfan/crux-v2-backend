@@ -62,19 +62,49 @@ class CreateAnalysis(relay.ClientIDMutation):
             if (task_obj.dataset != dataset_obj):
                 raise Exception("Task is not assoicated with dataset")
 
-        analysis = Analysis(
-            name=name,
-            description=description,
-            created_by=user,
-            dataset=dataset_obj,
-            task=task_obj,
-            figshare_id=figshare_id)
+        analysis = Analysis(name=name,
+                            description=description,
+                            created_by=user,
+                            dataset=dataset_obj,
+                            task=task_obj,
+                            figshare_id=figshare_id)
         analysis.save()
         for tag_name in tags:
             tag, _ = AnalysisTag.objects.get_or_create(name=tag_name)
             analysis.tags.add(tag)
 
         return CreateAnalysis(analysis=analysis)
+
+
+class EditAnalysis(relay.ClientIDMutation):
+    class Input:
+        description = graphene.String(required=True)
+        analysis_id = relay.GlobalID(required=True)
+
+    analysis = graphene.Field(AnalysisNode)
+
+    @staticmethod
+    @login_required
+    def mutate_and_get_payload(self,
+                               info,
+                               description,
+                               analysis_id,
+                               client_mutation_id=None):
+        user = info.context.user
+        if not user.is_authenticated:
+            raise Exception('Authentication credentials were not provided')
+
+        _type, _id = from_global_id(analysis_id)
+        graphene_type = info.schema.get_type(_type).graphene_type
+        analysis_obj = graphene_type.get_node(info, _id)
+
+        if analysis_obj.created_by != user:
+            raise Exception('User did not create dataset')
+
+        analysis_obj.description = description
+        analysis_obj.save()
+
+        return EditAnalysis(analysis=analysis_obj)
 
 
 class AnalysisQuery:
@@ -84,3 +114,4 @@ class AnalysisQuery:
 
 class AnalysisMutations:
     create_analysis = CreateAnalysis.Field()
+    edit_analysis = EditAnalysis.Field()
