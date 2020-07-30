@@ -120,7 +120,8 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'server.urls'
 
 CORS_ORIGIN_WHITELIST = [
-    "necrux.netlify.com", "localhost:8443", "localhost:3000"
+    "necrux.netlify.app", "necrux.netlify.com", "localhost:8443",
+    "localhost:3000"
 ]
 
 TEMPLATES = [
